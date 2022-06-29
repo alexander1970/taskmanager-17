@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 
-const createNewTaskButtonTemplate = () => '<button class="control__button">+ ADD NEW TASK</button>';
+const createNewTaskButtonTemplate = () => '<button class="control__button">+ ДОБАВИТЬ НОВУЮ ЗАДАЧУ</button>';
 
 export default class NewTaskButtonView {
   getTemplate() {

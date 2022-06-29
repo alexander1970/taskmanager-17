@@ -2,9 +2,9 @@ import {createElement} from '../render.js';
 
 const createSortTemplate = () => (
   `<div class="board__sort-list">
-    <a href="#" class="board__sort-item">SORT BY DEFAULT</a>
-    <a href="#" class="board__sort-item">SORT BY DATE up</a>
-    <a href="#" class="board__sort-item">SORT BY DATE down</a>
+    <a href="#" class="board__sort-item">СОРТИРОВАТЬ ПО УМОЛЧАНИЮ</a>
+    <a href="#" class="board__sort-item">СОРТИРОВАТЬ ПО ДАТЕ вверх</a>
+    <a href="#" class="board__sort-item">СОРТИРОВАТЬ ПО ДАТЕ вниз</a>
   </div>`
 );
 

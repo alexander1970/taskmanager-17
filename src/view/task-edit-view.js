@@ -16,7 +16,8 @@ const createTaskEditTemplate = () => (
               class="card__text"
               placeholder="Start typing your text here..."
               name="text"
-            >This is example of task edit. You can set date and chose repeating days and color.</textarea>
+              >Это пример редактирования задачи.Вы можете установить дату и выбрать повторяющиеся дни и цвет.
+            </textarea>
           </label>
         </div>
 
@@ -24,7 +25,7 @@ const createTaskEditTemplate = () => (
           <div class="card__details">
             <div class="card__dates">
               <button class="card__date-deadline-toggle" type="button">
-                date: <span class="card__date-status">yes</span>
+                Дата: <span class="card__date-status">да</span>
               </button>
 
               <fieldset class="card__date-deadline">
@@ -34,13 +35,13 @@ const createTaskEditTemplate = () => (
                     type="text"
                     placeholder=""
                     name="date"
-                    value="23 September"
+                    value="23 СЕНТЯБРЯ"
                   />
                 </label>
               </fieldset>
 
               <button class="card__repeat-toggle" type="button">
-                repeat:<span class="card__repeat-status">yes</span>
+                ПОВТОРЕНИЕ:<span class="card__repeat-status">да</span>
               </button>
 
               <fieldset class="card__repeat-days">
@@ -52,9 +53,7 @@ const createTaskEditTemplate = () => (
                     name="repeat"
                     value="mo"
                   />
-                  <label class="card__repeat-day" for="repeat-mo-4"
-                    >mo</label
-                  >
+                  <label class="card__repeat-day" for="repeat-mo-4">пт</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -63,9 +62,7 @@ const createTaskEditTemplate = () => (
                     value="tu"
                     checked
                   />
-                  <label class="card__repeat-day" for="repeat-tu-4"
-                    >tu</label
-                  >
+                  <label class="card__repeat-day" for="repeat-tu-4">вт</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -73,9 +70,7 @@ const createTaskEditTemplate = () => (
                     name="repeat"
                     value="we"
                   />
-                  <label class="card__repeat-day" for="repeat-we-4"
-                    >we</label
-                  >
+                  <label class="card__repeat-day" for="repeat-we-4">ср</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -83,9 +78,7 @@ const createTaskEditTemplate = () => (
                     name="repeat"
                     value="th"
                   />
-                  <label class="card__repeat-day" for="repeat-th-4"
-                    >th</label
-                  >
+                  <label class="card__repeat-day" for="repeat-th-4">чт</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -94,9 +87,7 @@ const createTaskEditTemplate = () => (
                     value="fr"
                     checked
                   />
-                  <label class="card__repeat-day" for="repeat-fr-4"
-                    >fr</label
-                  >
+                  <label class="card__repeat-day" for="repeat-fr-4">пт</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -104,9 +95,7 @@ const createTaskEditTemplate = () => (
                     value="sa"
                     id="repeat-sa-4"
                   />
-                  <label class="card__repeat-day" for="repeat-sa-4"
-                    >sa</label
-                  >
+                  <label class="card__repeat-day" for="repeat-sa-4">сб</label>
                   <input
                     class="visually-hidden card__repeat-day-input"
                     type="checkbox"
@@ -115,16 +104,14 @@ const createTaskEditTemplate = () => (
                     value="su"
                     checked
                   />
-                  <label class="card__repeat-day" for="repeat-su-4"
-                    >su</label
-                  >
+                  <label class="card__repeat-day" for="repeat-su-4">вс</label>
                 </div>
               </fieldset>
             </div>
           </div>
 
           <div class="card__colors-inner">
-            <h3 class="card__colors-title">Color</h3>
+            <h3 class="card__colors-title">цвет</h3>
             <div class="card__colors-wrap">
               <input
                 type="radio"
@@ -192,8 +179,8 @@ const createTaskEditTemplate = () => (
         </div>
 
         <div class="card__status-btns">
-          <button class="card__save" type="submit">save</button>
-          <button class="card__delete" type="button">delete</button>
+          <button class="card__save" type="submit">сохранить</button>
+          <button class="card__delete" type="button">удалить</button>
         </div>
       </div>
     </form>

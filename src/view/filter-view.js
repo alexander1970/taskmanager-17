@@ -10,8 +10,8 @@ const createFilterTemplate = () => (
       checked
     />
     <label for="filter__all" class="filter__label">
-      All <span class="filter__all-count">13</span></label
-    >
+      ВСЕ <span class="filter__all-count">13</span>
+    </label>
     <input
       type="radio"
       id="filter__overdue"
@@ -19,9 +19,9 @@ const createFilterTemplate = () => (
       name="filter"
       disabled
     />
-    <label for="filter__overdue" class="filter__label"
-      >Overdue <span class="filter__overdue-count">0</span></label
-    >
+    <label for="filter__overdue" class="filter__label">
+      ПРОСРОЧЕНО <span class="filter__overdue-count">0</span>
+    </label>
     <input
       type="radio"
       id="filter__today"
@@ -29,36 +29,36 @@ const createFilterTemplate = () => (
       name="filter"
       disabled
     />
-    <label for="filter__today" class="filter__label"
-      >Today <span class="filter__today-count">0</span></label
-    >
+    <label for="filter__today" class="filter__label">
+      СЕГОДНЯ <span class="filter__today-count">0</span>
+    </label>
     <input
       type="radio"
       id="filter__favorites"
       class="filter__input visually-hidden"
       name="filter"
     />
-    <label for="filter__favorites" class="filter__label"
-      >Favorites <span class="filter__favorites-count">1</span></label
-    >
+    <label for="filter__favorites" class="filter__label">
+      ИЗБРАННОЕ <span class="filter__favorites-count">1</span>
+    </label>
     <input
       type="radio"
       id="filter__repeating"
       class="filter__input visually-hidden"
       name="filter"
     />
-    <label for="filter__repeating" class="filter__label"
-      >Repeating <span class="filter__repeating-count">1</span></label
-    >
+    <label for="filter__repeating" class="filter__label">
+      ПОВТОР <span class="filter__repeating-count">1</span>
+    </label>
     <input
       type="radio"
       id="filter__archive"
       class="filter__input visually-hidden"
       name="filter"
     />
-    <label for="filter__archive" class="filter__label"
-      >Archive <span class="filter__archive-count">115</span></label
-    >
+    <label for="filter__archive" class="filter__label">
+      АРХИВ <span class="filter__archive-count">115</span>
+    </label>
   </section>`
 );
 

@@ -26,7 +26,7 @@ const createTaskTemplate = () => (
         </div>
 
         <div class="card__textarea-wrap">
-          <p class="card__text">Example default task with default color.</p>
+          <p class="card__text">Пример задачи по умолчанию с цветом по умолчанию.</p>
         </div>
 
         <div class="card__settings">
@@ -34,7 +34,7 @@ const createTaskTemplate = () => (
             <div class="card__dates">
               <div class="card__date-deadline">
                 <p class="card__input-deadline-wrap">
-                  <span class="card__date">23 September</span>
+                  <span class="card__date">23 сентября</span>
                 </p>
               </div>
             </div>
