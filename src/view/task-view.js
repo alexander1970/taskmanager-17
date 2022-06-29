@@ -1,53 +1,76 @@
-import {createElement} from '../render.js';
+import {createElement} from '../render';
+import { humanizeTaskDueDate, isTaskExpired, isTaskRepeating } from '../utils';
 
-const createTaskTemplate = () => (
-  `<article class="card card--black">
-    <div class="card__form">
-      <div class="card__inner">
-        <div class="card__control">
-          <button type="button" class="card__btn card__btn--edit">
-            edit
-          </button>
-          <button type="button" class="card__btn card__btn--archive">
-            archive
-          </button>
-          <button
-            type="button"
-            class="card__btn card__btn--favorites"
-          >
-            favorites
-          </button>
-        </div>
+const createTaskTemplate = (task) => {
+  const {
+    color,
+    description,
+    dueDate,
+    repeating,
+    isArchive,
+    isFavorite
+  } = task;
 
-        <div class="card__color-bar">
-          <svg class="card__color-bar-wave" width="100%" height="10">
-            <use xlink:href="#wave"></use>
-          </svg>
-        </div>
+  const date = dueDate !== null ? humanizeTaskDueDate(dueDate) : '';
 
-        <div class="card__textarea-wrap">
-          <p class="card__text">Пример задачи по умолчанию с цветом по умолчанию.</p>
-        </div>
+  const deadlineClassName = isTaskExpired(dueDate) ? 'card--deadline' : '';
 
-        <div class="card__settings">
-          <div class="card__details">
-            <div class="card__dates">
-              <div class="card__date-deadline">
-                <p class="card__input-deadline-wrap">
-                  <span class="card__date">23 сентября</span>
-                </p>
+  const repeatClassName = isTaskRepeating(repeating) ? 'card--repeat' : '';
+
+  const archiveClassName = isArchive ? 'card__btn--archive card__btn--disabled' : 'card__btn--archive';
+
+  const favoriteClassName = isFavorite ? 'card__btn--favorites card__btn--disabled' : 'card__btn--favorites';
+
+  return (
+    `<article class="card card--${color} ${deadlineClassName} ${repeatClassName}">
+      <div class="card__form">
+        <div class="card__inner">
+          <div class="card__control">
+            <button type="button" class="card__btn card__btn--edit">
+              редактор
+            </button>
+            <button type="button" class="card__btn ${archiveClassName}">
+              архив
+            </button>
+            <button type="button" class="card__btn ${favoriteClassName}">
+              избран
+            </button>
+          </div>
+
+          <div class="card__color-bar">
+            <svg class="card__color-bar-wave" width="100%" height="10">
+              <use xlink:href="#wave"></use>
+            </svg>
+          </div>
+
+          <div class="card__textarea-wrap">
+            <p class="card__text">${description}</p>
+          </div>
+
+          <div class="card__settings">
+            <div class="card__details">
+              <div class="card__dates">
+                <div class="card__date-deadline">
+                  <p class="card__input-deadline-wrap">
+                    <span class="card__date">${date}</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </article>`
-);
+    </article>`
+  );
+};
 
 export default class TaskView {
+  constructor(task) {
+    this.task = task;
+  }
+
   getTemplate() {
-    return createTaskTemplate();
+    return createTaskTemplate(this.task);
   }
 
   getElement() {
