@@ -1,195 +1,138 @@
-import {createElement} from '../render.js';
+import { COLORS } from '../const';
+import {createElement} from '../render';
+import { humanizeTaskDueDate, isTaskRepeating } from '../utils';
 
-const createTaskEditTemplate = () => (
-  `<article class="card card--edit card--yellow card--repeat">
-    <form class="card__form" method="get">
-      <div class="card__inner">
-        <div class="card__color-bar">
-          <svg class="card__color-bar-wave" width="100%" height="10">
-            <use xlink:href="#wave"></use>
-          </svg>
-        </div>
+const createTaskEditDateTemplate = (dueDate) => (
+  `<button class="card__date-deadline-toggle" type="button">
+      Дата: <span class="card__date-status">${dueDate !== null ? 'да' : 'нет'}</span>
+    </button>
 
-        <div class="card__textarea-wrap">
-          <label>
-            <textarea
-              class="card__text"
-              placeholder="Start typing your text here..."
-              name="text"
-              >Это пример редактирования задачи.Вы можете установить дату и выбрать повторяющиеся дни и цвет.
-            </textarea>
-          </label>
-        </div>
-
-        <div class="card__settings">
-          <div class="card__details">
-            <div class="card__dates">
-              <button class="card__date-deadline-toggle" type="button">
-                Дата: <span class="card__date-status">да</span>
-              </button>
-
-              <fieldset class="card__date-deadline">
-                <label class="card__input-deadline-wrap">
-                  <input
-                    class="card__date"
-                    type="text"
-                    placeholder=""
-                    name="date"
-                    value="23 СЕНТЯБРЯ"
-                  />
-                </label>
-              </fieldset>
-
-              <button class="card__repeat-toggle" type="button">
-                ПОВТОРЕНИЕ:<span class="card__repeat-status">да</span>
-              </button>
-
-              <fieldset class="card__repeat-days">
-                <div class="card__repeat-days-inner">
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-mo-4"
-                    name="repeat"
-                    value="mo"
-                  />
-                  <label class="card__repeat-day" for="repeat-mo-4">пт</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-tu-4"
-                    name="repeat"
-                    value="tu"
-                    checked
-                  />
-                  <label class="card__repeat-day" for="repeat-tu-4">вт</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-we-4"
-                    name="repeat"
-                    value="we"
-                  />
-                  <label class="card__repeat-day" for="repeat-we-4">ср</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-th-4"
-                    name="repeat"
-                    value="th"
-                  />
-                  <label class="card__repeat-day" for="repeat-th-4">чт</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-fr-4"
-                    name="repeat"
-                    value="fr"
-                    checked
-                  />
-                  <label class="card__repeat-day" for="repeat-fr-4">пт</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    name="repeat"
-                    value="sa"
-                    id="repeat-sa-4"
-                  />
-                  <label class="card__repeat-day" for="repeat-sa-4">сб</label>
-                  <input
-                    class="visually-hidden card__repeat-day-input"
-                    type="checkbox"
-                    id="repeat-su-4"
-                    name="repeat"
-                    value="su"
-                    checked
-                  />
-                  <label class="card__repeat-day" for="repeat-su-4">вс</label>
-                </div>
-              </fieldset>
-            </div>
-          </div>
-
-          <div class="card__colors-inner">
-            <h3 class="card__colors-title">цвет</h3>
-            <div class="card__colors-wrap">
-              <input
-                type="radio"
-                id="color-black-4"
-                class="card__color-input card__color-input--black visually-hidden"
-                name="color"
-                value="black"
-              />
-              <label
-                for="color-black-4"
-                class="card__color card__color--black"
-                >black</label
-              >
-              <input
-                type="radio"
-                id="color-yellow-4"
-                class="card__color-input card__color-input--yellow visually-hidden"
-                name="color"
-                value="yellow"
-                checked
-              />
-              <label
-                for="color-yellow-4"
-                class="card__color card__color--yellow"
-                >yellow</label
-              >
-              <input
-                type="radio"
-                id="color-blue-4"
-                class="card__color-input card__color-input--blue visually-hidden"
-                name="color"
-                value="blue"
-              />
-              <label
-                for="color-blue-4"
-                class="card__color card__color--blue"
-                >blue</label
-              >
-              <input
-                type="radio"
-                id="color-green-4"
-                class="card__color-input card__color-input--green visually-hidden"
-                name="color"
-                value="green"
-              />
-              <label
-                for="color-green-4"
-                class="card__color card__color--green"
-                >green</label
-              >
-              <input
-                type="radio"
-                id="color-pink-4"
-                class="card__color-input card__color-input--pink visually-hidden"
-                name="color"
-                value="pink"
-              />
-              <label
-                for="color-pink-4"
-                class="card__color card__color--pink"
-                >pink</label
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="card__status-btns">
-          <button class="card__save" type="submit">сохранить</button>
-          <button class="card__delete" type="button">удалить</button>
-        </div>
-      </div>
-    </form>
-  </article>`
+    ${dueDate !== null ? `<fieldset class="card__date-deadline">
+      <label class="card__input-deadline-wrap">
+        <input
+          class="card__date"
+          type="text"
+          placeholder=""
+          name="date"
+          value="${humanizeTaskDueDate(dueDate)}"
+        />
+      </label>
+    </fieldset>` : ''}
+  `
 );
 
+const createTaskEditRepeatingTemplate  = (repeating) => (
+  `<button class="card__repeat-toggle" type="button">
+    ПОВТОРЯТЬ:<span class="card__repeat-status">${isTaskRepeating(repeating) ? 'да' : 'нет'}</span>
+  </button>
+
+  ${isTaskRepeating(repeating) ? `<fieldset class="card__repeat-days">
+    <div class="card__repeat-days-inner">
+      ${Object.entries(repeating).map(([day, repeat]) => `<input
+        class="visually-hidden card__repeat-day-input"
+        type="checkbox"
+        id="repeat-${day}"
+        name="repeat"
+        value="${day}"
+        ${repeat ? 'checked' : ''}
+      />
+      <label class="card__repeat-day" for="repeat-${day}">${day}</label>`).join('')}
+    </div>
+  </fieldset>` : ''}`
+);
+
+const createTaskEditColorsTemplate = (currentColor) => COLORS.map((color) => `
+  <input
+    type="radio"
+    id="color-${color}"
+    class="card__color-input card__color-input--${color} visually-hidden"
+    name="color"
+    value="${color}"
+    ${currentColor === color ? 'checked' : ''}
+  />
+  <label
+    for="color-${color}"
+    class="card__color card__color--${color}"
+  >${color}</label>
+`).join('');
+
+const createTaskEditTemplate = (task = {}) => {
+  const {
+    color = 'black',
+    description = '',
+    dueDate = null,
+    repeating = {
+      mo: false,
+      tu: false,
+      we: false,
+      th: false,
+      fr: false,
+      sa: false,
+      su: false,
+    },
+  } = task;
+
+  const dateTemplate = createTaskEditDateTemplate(dueDate);
+
+  const repeatingClassName = isTaskRepeating(repeating) ? 'card--repeat' : '';
+
+  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating);
+
+  const colorsTemplate = createTaskEditColorsTemplate(color);
+
+  return (
+    `<article class="card card--edit card--${color} ${repeatingClassName}">
+      <form class="card__form" method="get">
+        <div class="card__inner">
+          <div class="card__color-bar">
+            <svg class="card__color-bar-wave" width="100%" height="10">
+              <use xlink:href="#wave"></use>
+            </svg>
+          </div>
+
+          <div class="card__textarea-wrap">
+            <label>
+              <textarea
+                class="card__text"
+                placeholder="Начните вводить текст здесь..."
+                name="text"
+                >${description}</textarea>
+            </label>
+          </div>
+
+          <div class="card__settings">
+            <div class="card__details">
+              <div class="card__dates">
+                ${dateTemplate}
+                ${repeatingTemplate}
+              </div>
+            </div>
+
+            <div class="card__colors-inner">
+              <h3 class="card__colors-title">цвет</h3>
+              <div class="card__colors-wrap">
+                ${colorsTemplate}
+              </div>
+            </div>
+          </div>
+
+          <div class="card__status-btns">
+            <button class="card__save" type="submit">сохранить</button>
+            <button class="card__delete" type="button">удалить</button>
+          </div>
+        </div>
+      </form>
+    </article>`
+  );
+};
+
 export default class TaskEditView {
+  constructor(task) {
+    this.task = task;
+  }
+
   getTemplate() {
-    return createTaskEditTemplate();
+    return createTaskEditTemplate(this.task);
   }
 
   getElement() {
