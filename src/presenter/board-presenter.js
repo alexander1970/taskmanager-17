@@ -1,10 +1,11 @@
+import {render} from '../render.js';
 import BoardView from '../view/board-view.js';
 import SortView from '../view/sort-view.js';
 import TaskListView from '../view/task-list-view.js';
 import TaskView from '../view/task-view.js';
 import TaskEditView from '../view/task-edit-view.js';
 import LoadMoreButtonView from '../view/load-more-button-view.js';
-import {render} from '../render.js';
+import NoTaskView from '../view/no-task-view.js';
 
 const TASK_COUNT_PER_STEP = 8;
 
@@ -19,24 +20,15 @@ export default class BoardPresenter {
   #boardTasks = [];
   #renderedTaskCount = TASK_COUNT_PER_STEP;
 
-  init = (boardContainer, tasksModel) => {
+  constructor(boardContainer, tasksModel) {
     this.#boardContainer = boardContainer;
     this.#tasksModel = tasksModel;
+  }
+
+  init = () => {
     this.#boardTasks = [...this.#tasksModel.tasks];
 
-    render(this.#boardComponent, this.#boardContainer);
-    render(new SortView(), this.#boardComponent.element);
-    render(this.#taskListComponent, this.#boardComponent.element);
-
-    for (let i = 0; i < Math.min(this.#boardTasks.length, TASK_COUNT_PER_STEP); i++) {
-      this.#renderTask(this.#boardTasks[i]);
-    }
-
-    if (this.#boardTasks.length > TASK_COUNT_PER_STEP) {
-      render(this.#loadMoreButtonComponent, this.#boardComponent.element);
-
-      this.#loadMoreButtonComponent.element.addEventListener('click', this.#handleLoadMoreButtonClick);
-    }
+    this.#renderBoard();
   };
 
   #handleLoadMoreButtonClick = (evt) => {
@@ -85,5 +77,27 @@ export default class BoardPresenter {
     });
 
     render(taskComponent, this.#taskListComponent.element);
+  };
+
+  #renderBoard = () => {
+    render(this.#boardComponent, this.#boardContainer);
+
+    if (this.#boardTasks.every((task) => task.isArchive)) {
+      render(new NoTaskView(), this.#boardComponent.element);
+      return;
+    }
+
+    render(new SortView(), this.#boardComponent.element);
+    render(this.#taskListComponent, this.#boardComponent.element);
+
+    for (let i = 0; i < Math.min(this.#boardTasks.length, TASK_COUNT_PER_STEP); i++) {
+      this.#renderTask(this.#boardTasks[i]);
+    }
+
+    if (this.#boardTasks.length > TASK_COUNT_PER_STEP) {
+      render(this.#loadMoreButtonComponent, this.#boardComponent.element);
+
+      this.#loadMoreButtonComponent.element.addEventListener('click', this.#handleLoadMoreButtonClick);
+    }
   };
 }
