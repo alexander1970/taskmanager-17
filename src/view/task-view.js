@@ -1,5 +1,5 @@
-import {createElement} from '../render';
-import { humanizeTaskDueDate, isTaskExpired, isTaskRepeating } from '../utils';
+import AbstractView from '../framework/view/abstract-view';
+import { humanizeTaskDueDate, isTaskExpired, isTaskRepeating } from '../utils/task';
 
 const createTaskTemplate = (task) => {
   const {
@@ -11,7 +11,7 @@ const createTaskTemplate = (task) => {
     isFavorite
   } = task;
 
-  const date = dueDate !== null ? humanizeTaskDueDate(dueDate) : '';
+  const date = humanizeTaskDueDate(dueDate);
 
   const deadlineClassName = isTaskExpired(dueDate) ? 'card--deadline' : '';
 
@@ -64,11 +64,11 @@ const createTaskTemplate = (task) => {
   );
 };
 
-export default class TaskView {
-  #element = null;
+export default class TaskView extends AbstractView {
   #task = null;
 
   constructor(task) {
+    super();
     this.#task = task;
   }
 
@@ -76,15 +76,13 @@ export default class TaskView {
     return createTaskTemplate(this.#task);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setEditClickHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.card__btn--edit').addEventListener('click', this.#editClickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
+  };
 }

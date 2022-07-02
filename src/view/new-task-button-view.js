@@ -1,23 +1,19 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 
 const createNewTaskButtonTemplate = () => '<button class="control__button">+ ДОБАВИТЬ НОВУЮ ЗАДАЧУ</button>';
 
-export default class NewTaskButtonView {
-  #element = null;
-
+export default class NewTaskButtonView extends AbstractView {
   get template() {
     return createNewTaskButtonTemplate();
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.addEventListener('click', this.#clickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }

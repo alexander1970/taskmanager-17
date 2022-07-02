@@ -1,83 +1,44 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 
-const createFilterTemplate = () => (
-  `<section class="main__filter filter container">
-    <input
+const createFilterItemTemplate = (filter, isChecked) => {
+  const {name, count} = filter;
+
+  return (
+    `<input
       type="radio"
-      id="filter__all"
+      id="filter__${name}"
       class="filter__input visually-hidden"
       name="filter"
-      checked
+      ${isChecked ? 'checked' : ''}
+      ${count === 0 ? 'disabled' : ''}
     />
     <label for="filter__all" class="filter__label">
-      ВСЕ <span class="filter__all-count">13</span>
-    </label>
-    <input
-      type="radio"
-      id="filter__overdue"
-      class="filter__input visually-hidden"
-      name="filter"
-      disabled
-    />
-    <label for="filter__overdue" class="filter__label">
-      ПРОСРОЧЕНО <span class="filter__overdue-count">0</span>
-    </label>
-    <input
-      type="radio"
-      id="filter__today"
-      class="filter__input visually-hidden"
-      name="filter"
-      disabled
-    />
-    <label for="filter__today" class="filter__label">
-      СЕГОДНЯ <span class="filter__today-count">0</span>
-    </label>
-    <input
-      type="radio"
-      id="filter__favorites"
-      class="filter__input visually-hidden"
-      name="filter"
-    />
-    <label for="filter__favorites" class="filter__label">
-      ИЗБРАННОЕ <span class="filter__favorites-count">1</span>
-    </label>
-    <input
-      type="radio"
-      id="filter__repeating"
-      class="filter__input visually-hidden"
-      name="filter"
-    />
-    <label for="filter__repeating" class="filter__label">
-      ПОВТОР <span class="filter__repeating-count">1</span>
-    </label>
-    <input
-      type="radio"
-      id="filter__archive"
-      class="filter__input visually-hidden"
-      name="filter"
-    />
-    <label for="filter__archive" class="filter__label">
-      АРХИВ <span class="filter__archive-count">115</span>
-    </label>
-  </section>`
-);
+      ${name} <span class="filter__all-count">${count}</span>
+    </label>`
+  );
+};
 
-export default class FilterView {
-  #element = null;
+const createFilterTemplate = (filterItems) => {
+  const filterItemsTemplate = filterItems
+    .map((filter, index)=> createFilterItemTemplate(filter, index === 0))
+    .join('');
+
+  return (`
+    <section class="main__filter filter container">
+      ${filterItemsTemplate}
+    </section>`
+  );
+};
+
+export default class FilterView extends AbstractView {
+  #filters = null;
+
+  constructor(filters) {
+    super();
+    this.#filters = filters;
+  }
 
   get template() {
-    return createFilterTemplate();
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
+    return createFilterTemplate(this.#filters);
   }
 }

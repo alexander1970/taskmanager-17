@@ -1,6 +1,23 @@
 import { COLORS } from '../const';
-import {createElement} from '../render';
-import { humanizeTaskDueDate, isTaskRepeating } from '../utils';
+import AbstractView from '../framework/view/abstract-view';
+import { humanizeTaskDueDate, isTaskRepeating } from '../utils/task';
+
+const BLANK_TASK = {
+  color: COLORS[0],
+  description: '',
+  dueDate: null,
+  repeating: {
+    mo: false,
+    tu: false,
+    we: false,
+    th: false,
+    fr: false,
+    sa: false,
+    su: false,
+  },
+  isArchive: false,
+  isFavorite: false,
+};
 
 const createTaskEditDateTemplate = (dueDate) => (
   `<button class="card__date-deadline-toggle" type="button">
@@ -126,11 +143,11 @@ const createTaskEditTemplate = (task = {}) => {
   );
 };
 
-export default class TaskEditView {
-  #element = null;
+export default class TaskEditView extends AbstractView {
   #task = null;
 
-  constructor(task) {
+  constructor(task = BLANK_TASK) {
+    super();
     this.#task = task;
   }
 
@@ -138,15 +155,13 @@ export default class TaskEditView {
     return createTaskEditTemplate(this.#task);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setFormSubmitHandler = (callback) => {
+    this._callback.formSubmit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  };
 }
