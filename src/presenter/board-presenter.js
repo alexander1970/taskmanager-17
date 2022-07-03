@@ -5,6 +5,7 @@ import TaskListView from '../view/task-list-view';
 import LoadMoreButtonView from '../view/load-more-button-view';
 import NoTaskView from '../view/no-task-view';
 import TaskPresenter from './task-presenter';
+import { updateItem } from '../utils/common';
 
 const TASK_COUNT_PER_STEP = 8;
 
@@ -42,12 +43,17 @@ export default class BoardPresenter {
     }
   };
 
+  #handleTaskChange = (updatedTask) => {
+    this.#boardTasks = updateItem(this.#boardTasks, updatedTask);
+    this.#taskPresenter.get(updatedTask.id).init(updatedTask);
+  };
+
   #renderSort = () => {
     render(this.#sortComponent, this.#boardComponent.element, RenderPosition.AFTERBEGIN);
   };
 
   #renderTask = (task) => {
-    const taskPresenter = new TaskPresenter(this.#taskListComponent.element);
+    const taskPresenter = new TaskPresenter(this.#taskListComponent.element, this.#handleTaskChange);
     taskPresenter.init(task);
     this.#taskPresenter.set(task.id, taskPresenter);
   };
