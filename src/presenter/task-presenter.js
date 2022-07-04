@@ -2,18 +2,26 @@ import { remove, render, replace } from '../framework/render';
 import TaskEditView from '../view/task-edit-view';
 import TaskView from '../view/task-view';
 
+const Mode = {
+  DEFAULT: 'ПРОСМОТР',
+  EDITING: 'РЕДАКТОР',
+};
+
 export default class TaskPresenter {
   #taskListContainer = null;
   #changeData = null;
+  #changeMode = null;
 
   #taskComponent = null;
   #taskEditComponent = null;
 
   #task = null;
+  #mode = Mode.DEFAULT;
 
-  constructor(taskListContainer, changeData) {
+  constructor(taskListContainer, changeData, changeMode) {
     this.#taskListContainer = taskListContainer;
     this.#changeData = changeData;
+    this.#changeMode = changeMode;
   }
 
   init = (task) => {
@@ -35,11 +43,11 @@ export default class TaskPresenter {
       return;
     }
 
-    if (this.#taskListContainer.contains(prevTaskComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#taskComponent, prevTaskComponent);
     }
 
-    if (this.#taskListContainer.contains(prevTaskEditComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#taskEditComponent, prevTaskEditComponent);
     }
 
@@ -52,14 +60,23 @@ export default class TaskPresenter {
     remove(this.#taskEditComponent);
   };
 
+  resetView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
+  };
+
   #replaceCardToForm = () => {
     replace(this.#taskEditComponent, this.#taskComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#changeMode();
+    this.#mode = Mode.DEFAULT;
   };
 
   #replaceFormToCard = () => {
     replace(this.#taskComponent, this.#taskEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.EDITING;
   };
 
   #escKeyDownHandler = (evt) => {
