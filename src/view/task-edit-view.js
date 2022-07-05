@@ -1,6 +1,6 @@
-import { COLORS } from '../const';
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { humanizeTaskDueDate, isTaskRepeating } from '../utils/task';
+import { COLORS } from '../const';
 
 const BLANK_TASK = {
   color: COLORS[0],
@@ -19,12 +19,12 @@ const BLANK_TASK = {
   isFavorite: false,
 };
 
-const createTaskEditDateTemplate = (dueDate) => (
+const createTaskEditDateTemplate = (dueDate, isDueDate) => (
   `<button class="card__date-deadline-toggle" type="button">
-      Дата: <span class="card__date-status">${dueDate !== null ? 'да' : 'нет'}</span>
+      Дата: <span class="card__date-status">${isDueDate ? 'да' : 'нет'}</span>
     </button>
 
-    ${dueDate !== null ? `<fieldset class="card__date-deadline">
+    ${isDueDate ? `<fieldset class="card__date-deadline">
       <label class="card__input-deadline-wrap">
         <input
           class="card__date"
@@ -38,12 +38,12 @@ const createTaskEditDateTemplate = (dueDate) => (
   `
 );
 
-const createTaskEditRepeatingTemplate  = (repeating) => (
+const createTaskEditRepeatingTemplate  = (repeating, isRepeating) => (
   `<button class="card__repeat-toggle" type="button">
-    ПОВТОРЯТЬ:<span class="card__repeat-status">${isTaskRepeating(repeating) ? 'да' : 'нет'}</span>
+    ПОВТОРЯТЬ:<span class="card__repeat-status">${isRepeating ? 'да' : 'нет'}</span>
   </button>
 
-  ${isTaskRepeating(repeating) ? `<fieldset class="card__repeat-days">
+  ${isRepeating ? `<fieldset class="card__repeat-days">
     <div class="card__repeat-days-inner">
       ${Object.entries(repeating).map(([day, repeat]) => `<input
         class="visually-hidden card__repeat-day-input"
@@ -73,27 +73,14 @@ const createTaskEditColorsTemplate = (currentColor) => COLORS.map((color) => `
   >${color}</label>
 `).join('');
 
-const createTaskEditTemplate = (task = {}) => {
-  const {
-    color = 'black',
-    description = '',
-    dueDate = null,
-    repeating = {
-      mo: false,
-      tu: false,
-      we: false,
-      th: false,
-      fr: false,
-      sa: false,
-      su: false,
-    },
-  } = task;
+const createTaskEditTemplate = (data) => {
+  const {color, description, dueDate, repeating, isDueDate, isRepeating} = data;
 
-  const dateTemplate = createTaskEditDateTemplate(dueDate);
+  const dateTemplate = createTaskEditDateTemplate(dueDate, isDueDate);
 
-  const repeatingClassName = isTaskRepeating(repeating) ? 'card--repeat' : '';
+  const repeatingClassName = isRepeating ? 'card--repeat' : '';
 
-  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating);
+  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating, isRepeating);
 
   const colorsTemplate = createTaskEditColorsTemplate(color);
 
@@ -143,16 +130,14 @@ const createTaskEditTemplate = (task = {}) => {
   );
 };
 
-export default class TaskEditView extends AbstractView {
-  #task = null;
-
+export default class TaskEditView extends AbstractStatefulView {
   constructor(task = BLANK_TASK) {
     super();
-    this.#task = task;
+    this._state = TaskEditView.parseTaskToState(task);
   }
 
   get template() {
-    return createTaskEditTemplate(this.#task);
+    return createTaskEditTemplate(this._state);
   }
 
   setFormSubmitHandler = (callback) => {
@@ -162,6 +147,36 @@ export default class TaskEditView extends AbstractView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.formSubmit(this.#task);
+    this._callback.formSubmit(TaskEditView.parseStateToTask(this._state));
+  };
+
+  static parseTaskToState = (task) => ({...task,
+    isDueDate: task.dueDate !== null,
+    isRepeating: isTaskRepeating(task.repeating),
+  });
+
+  static parseStateToTask = (state) => {
+    const task = {...state};
+
+    if (!task.isDueDate) {
+      task.dueDate = null;
+    }
+
+    if (!task.isRepeating) {
+      task.repeating = {
+        mo: false,
+        tu: false,
+        we: false,
+        th: false,
+        fr: false,
+        sa: false,
+        su: false,
+      };
+    }
+
+    delete task.isDueDate;
+    delete task.isRepeating;
+
+    return task;
   };
 }
