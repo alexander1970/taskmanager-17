@@ -1,6 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { humanizeTaskDueDate, isTaskRepeating } from '../utils/task';
 import { COLORS } from '../const';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_TASK = {
   color: COLORS[0],
@@ -84,6 +87,8 @@ const createTaskEditTemplate = (data) => {
 
   const colorsTemplate = createTaskEditColorsTemplate(color);
 
+  const isSubmitDisabled = (isDueDate && dueDate === null) || (isRepeating && !isTaskRepeating(repeating));
+
   return (
     `<article class="card card--edit card--${color} ${repeatingClassName}">
       <form class="card__form" method="get">
@@ -121,7 +126,9 @@ const createTaskEditTemplate = (data) => {
           </div>
 
           <div class="card__status-btns">
-            <button class="card__save" type="submit">сохранить</button>
+            <button class="card__save" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>
+              сохранить
+            </button>
             <button class="card__delete" type="button">удалить</button>
           </div>
         </div>
@@ -131,23 +138,130 @@ const createTaskEditTemplate = (data) => {
 };
 
 export default class TaskEditView extends AbstractStatefulView {
+  #datepicker = null;
+
   constructor(task = BLANK_TASK) {
     super();
     this._state = TaskEditView.parseTaskToState(task);
+
+    this.#setInnerHandlers();
+    this.#setDatepicker();
   }
 
   get template() {
     return createTaskEditTemplate(this._state);
   }
 
+  // Перегружаем метод родителя removeElement,
+  // чтобы при удалении удалялся более не нужный календарь
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
+  reset = (task) => {
+    this.updateElement(
+      TaskEditView.parseTaskToState(task)
+    );
+  };
+
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
   };
 
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.#setDatepicker();
+    this.setFormSubmitHandler(this._callback.formSubmit);
+  };
+
+  #colorChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      color: evt.target.value,
+    });
+  };
+
+  #descriptionInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      description: evt.target.value,
+    });
+  };
+
+  #dueDateChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dueDate: userDate,
+    });
+  };
+
+  #dueDateToggleHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      isDueDate: !this._state.isDueDate,
+      // Логика следующая: если выбор даты нужно показать,
+      // то есть когда "!this._state.isDueDate === true",
+      // тогда isRepeating должно быть строго false.
+      isRepeating: !this._state.isDueDate ? false : this._state.isRepeating,
+    });
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.formSubmit(TaskEditView.parseStateToTask(this._state));
+  };
+
+  #repeatingToggleHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      isRepeating: !this._state.isRepeating,
+      // Аналогично, но наоборот, для повторения
+      isDueDate: !this._state.isRepeating ? false : this._state.isDueDate,
+    });
+  };
+
+  #repeatingChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      repeating: {...this._state.repeating, [evt.target.value]: evt.target.checked},
+    });
+  };
+
+  #setDatepicker = () => {
+    if (this._state.isDueDate) {
+      // flatpickr есть смысл инициализировать только в случае,
+      // если поле выбора даты доступно для заполнения
+      this.#datepicker = flatpickr(
+        this.element.querySelector('.card__date'),
+        {
+          dateFormat: 'j F',
+          defaultDate: this._state.dueDate,
+          onChange: this.#dueDateChangeHandler, // На событие flatpickr передаём наш колбэк
+        }
+      );
+    }
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.card__date-deadline-toggle')
+      .addEventListener('click', this.#dueDateToggleHandler);
+    this.element.querySelector('.card__repeat-toggle')
+      .addEventListener('click', this.#repeatingToggleHandler);
+    this.element.querySelector('.card__text')
+      .addEventListener('input', this.#descriptionInputHandler);
+
+    if (this._state.isRepeating) {
+      this.element.querySelector('.card__repeat-days-inner')
+        .addEventListener('change', this.#repeatingChangeHandler);
+    }
+
+    this.element.querySelector('.card__colors-wrap')
+      .addEventListener('change', this.#colorChangeHandler);
   };
 
   static parseTaskToState = (task) => ({...task,
