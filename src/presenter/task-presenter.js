@@ -1,3 +1,4 @@
+import { UpdateType, UserAction } from '../const';
 import { remove, render, replace } from '../framework/render';
 import TaskEditView from '../view/task-edit-view';
 import TaskView from '../view/task-view';
@@ -93,15 +94,27 @@ export default class TaskPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#task, isFavorite: !this.#task.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      {...this.#task, isFavorite: !this.#task.isFavorite}
+    );
   };
 
   #handleArchiveClick = () => {
-    this.#changeData({...this.#task, isArchive: !this.#task.isArchive});
+    this.#changeData(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      {...this.#task, isArchive: !this.#task.isArchive}
+    );
   };
 
   #handleFormSubmit = (task) => {
-    this.#changeData(task);
+    this.#changeData(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      task
+    );
     this.#replaceFormToCard();
   };
 }
