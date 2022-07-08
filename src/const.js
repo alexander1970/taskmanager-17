@@ -4,7 +4,7 @@ const FilterType = {
   ALL: 'ВСЕ',
   OVERDUE: 'ПРОСРОЧЕНО',
   TODAY: 'СЕГОДНЯ',
-  FAVORITES: 'ИЗБРАННОЕ',
+  FAVORITES: 'важные',
   REPEATING: 'ПОВТОРЕНИЕ',
   ARCHIVE: 'АРХИВ',
 };

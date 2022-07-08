@@ -1,3 +1,4 @@
+import he from 'he';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { humanizeTaskDueDate, isTaskRepeating } from '../utils/task';
 import { COLORS } from '../const';
@@ -105,7 +106,7 @@ const createTaskEditTemplate = (data) => {
                 class="card__text"
                 placeholder="Начните вводить текст здесь..."
                 name="text"
-                >${description}</textarea>
+                >${he.encode(description)}</textarea>
             </label>
           </div>
 
