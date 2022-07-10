@@ -23,8 +23,8 @@ const BLANK_TASK = {
   isFavorite: false,
 };
 
-const createTaskEditDateTemplate = (dueDate, isDueDate) => (
-  `<button class="card__date-deadline-toggle" type="button">
+const createTaskEditDateTemplate = (dueDate, isDueDate, isDisabled) => (
+  `<button class="card__date-deadline-toggle" type="button" ${isDisabled ? 'disabled' : ''}>
       Дата: <span class="card__date-status">${isDueDate ? 'да' : 'нет'}</span>
     </button>
 
@@ -36,14 +36,15 @@ const createTaskEditDateTemplate = (dueDate, isDueDate) => (
           placeholder=""
           name="date"
           value="${humanizeTaskDueDate(dueDate)}"
+          ${isDisabled ? 'disabled' : ''}
         />
       </label>
     </fieldset>` : ''}
   `
 );
 
-const createTaskEditRepeatingTemplate  = (repeating, isRepeating) => (
-  `<button class="card__repeat-toggle" type="button">
+const createTaskEditRepeatingTemplate  = (repeating, isRepeating, isDisabled) => (
+  `<button class="card__repeat-toggle" type="button" ${isDisabled ? 'disabled' : ''}>
     ПОВТОРЯТЬ:<span class="card__repeat-status">${isRepeating ? 'да' : 'нет'}</span>
   </button>
 
@@ -56,37 +57,49 @@ const createTaskEditRepeatingTemplate  = (repeating, isRepeating) => (
         name="repeat"
         value="${day}"
         ${repeat ? 'checked' : ''}
+        ${isDisabled ? 'disabled' : ''}
       />
       <label class="card__repeat-day" for="repeat-${day}">${day}</label>`).join('')}
     </div>
   </fieldset>` : ''}`
 );
 
-const createTaskEditColorsTemplate = (currentColor) => COLORS.map((color) => `
-  <input
+const createTaskEditColorsTemplate = (currentColor, isDisabled) => COLORS.map((color) => (
+  `<input
     type="radio"
     id="color-${color}"
     class="card__color-input card__color-input--${color} visually-hidden"
     name="color"
     value="${color}"
     ${currentColor === color ? 'checked' : ''}
+    ${isDisabled ? 'disabled' : ''}
   />
   <label
     for="color-${color}"
     class="card__color card__color--${color}"
   >${color}</label>
-`).join('');
+`)).join('');
 
 const createTaskEditTemplate = (data) => {
-  const {color, description, dueDate, repeating, isDueDate, isRepeating} = data;
+  const {
+    color,
+    description,
+    dueDate,
+    repeating,
+    isDueDate,
+    isRepeating,
+    isDisabled,
+    isSaving,
+    isDeleting
+  } = data;
 
-  const dateTemplate = createTaskEditDateTemplate(dueDate, isDueDate);
+  const dateTemplate = createTaskEditDateTemplate(dueDate, isDueDate, isDisabled);
 
   const repeatingClassName = isRepeating ? 'card--repeat' : '';
 
-  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating, isRepeating);
+  const repeatingTemplate = createTaskEditRepeatingTemplate(repeating, isRepeating, isDisabled);
 
-  const colorsTemplate = createTaskEditColorsTemplate(color);
+  const colorsTemplate = createTaskEditColorsTemplate(color, isDisabled);
 
   const isSubmitDisabled = (isDueDate && dueDate === null) || (isRepeating && !isTaskRepeating(repeating));
 
@@ -106,6 +119,7 @@ const createTaskEditTemplate = (data) => {
                 class="card__text"
                 placeholder="Начните вводить текст здесь..."
                 name="text"
+                ${isDisabled ? 'disabled' : ''}
                 >${he.encode(description)}</textarea>
             </label>
           </div>
@@ -127,10 +141,12 @@ const createTaskEditTemplate = (data) => {
           </div>
 
           <div class="card__status-btns">
-            <button class="card__save" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>
-              сохранить
+            <button class="card__save" type="submit" ${isSubmitDisabled || isDisabled ? 'disabled' : ''}>
+              ${isSaving ? 'сохранение...' : 'сохранить'}
             </button>
-            <button class="card__delete" type="button">удалить</button>
+            <button class="card__delete" type="button" ${isDeleting ? 'disabled' : ''}>
+            ${isDeleting ? 'удаление...' : 'удалить'}
+            </button>
           </div>
         </div>
       </form>
@@ -279,6 +295,9 @@ export default class TaskEditView extends AbstractStatefulView {
   static parseTaskToState = (task) => ({...task,
     isDueDate: task.dueDate !== null,
     isRepeating: isTaskRepeating(task.repeating),
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
   });
 
   static parseStateToTask = (state) => {
@@ -302,6 +321,9 @@ export default class TaskEditView extends AbstractStatefulView {
 
     delete task.isDueDate;
     delete task.isRepeating;
+    delete task.isDisabled;
+    delete task.isSaving;
+    delete task.isDeleting;
 
     return task;
   };

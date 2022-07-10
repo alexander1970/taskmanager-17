@@ -1,4 +1,3 @@
-import {nanoid} from 'nanoid';
 import { UpdateType, UserAction } from '../const';
 import { remove, render, RenderPosition } from '../framework/render';
 import TaskEditView from '../view/task-edit-view';
@@ -43,15 +42,31 @@ export default class TaskNewPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  setSaving = () => {
+    this.#taskEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#taskEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#taskEditComponent.shake(resetFormState);
+  };
+
   #handleFormSubmit = (task) => {
     this.#changeData(
       UserAction.ADD_TASK,
       UpdateType.MINOR,
-      // Пока у нас нет сервера, который бы после сохранения
-      // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: nanoid(), ...task},
+      task,
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
